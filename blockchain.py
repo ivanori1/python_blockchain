@@ -7,18 +7,9 @@ from hash_util import hash_string_256, hash_block
 
 # The reward we give to miners (for creating a new block)
 MINING_REWARD = 10
-
-# Our starting block for the blockchain
-genesis_block = {
-    'previous_hash': '',
-    'index': 0,
-    'transactions': [],
-    'proof' : 100,
-}
-# Initializing our (empty) blockchain list
-blockchain = [genesis_block]
-# Unhandled transactions
+blockchain = []
 open_transactions = []
+
 # We are the owner of this blockchain node, hence this is our identifier (e.g. for sending coins)
 owner = 'Max'
 # Registered participants: Ourself + other people sending/ receiving coins
@@ -26,40 +17,60 @@ participants = {'Max'}
 
 
 def save_data():
-    with open('blockchain.txt', mode='w') as f:
-        f.write(json.dumps(blockchain))
-        f.write('\n')
-        f.write(json.dumps(open_transactions))
+    try:
+        with open('blockchain.txt', mode='w') as f:
+            f.write(json.dumps(blockchain))
+            f.write('\n')
+            f.write(json.dumps(open_transactions))
 
+
+    except IOError:
+        print('Saving falied')
 
 def load_data():
-    with open('blockchain.txt', mode= 'r') as f:
-        file_content = f.readlines()
-        global blockchain
-        global open_transactions
-        blockchain = json.loads(file_content[0][:-1])
-        updated_blockchain = []
-        for block in blockchain:
-            updated_block = {
-                'previous_hash': block['previous_hash'],
-                'index': block['index'],
-                'proof': block['proof'],
-                'transactions': [OrderedDict(
-                    [('sender', tx['sender']),
-                     ('recipient', tx['recipient']),
-                      ('amount', tx['amount'])])  for tx in block['transactions']]
-            }
-            updated_blockchain.append(updated_block)
-        blockchain = updated_blockchain
-        open_transactions = json.loads(file_content[1])
-        updated_transactions = []
-        for tx in open_transactions:
-            updated_transaction = OrderedDict(
-                    [('sender', tx['sender']),
-                     ('recipient', tx['recipient']),
-                      ('amount', tx['amount'])])
-            updated_transactions.append(updated_transaction)
-        open_transactions = updated_transactions
+    global blockchain
+    global open_transactions
+    try:
+        with open('blockchain.txt', mode= 'r') as f:
+            file_content = f.readlines()
+
+            blockchain = json.loads(file_content[0][:-1])
+            updated_blockchain = []
+            for block in blockchain:
+                updated_block = {
+                    'previous_hash': block['previous_hash'],
+                    'index': block['index'],
+                    'proof': block['proof'],
+                    'transactions': [OrderedDict(
+                        [('sender', tx['sender']),
+                         ('recipient', tx['recipient']),
+                          ('amount', tx['amount'])])  for tx in block['transactions']]
+                }
+                updated_blockchain.append(updated_block)
+            blockchain = updated_blockchain
+            open_transactions = json.loads(file_content[1])
+            updated_transactions = []
+            for tx in open_transactions:
+                updated_transaction = OrderedDict(
+                        [('sender', tx['sender']),
+                         ('recipient', tx['recipient']),
+                          ('amount', tx['amount'])])
+                updated_transactions.append(updated_transaction)
+            open_transactions = updated_transactions
+
+    except IOError:
+        # Our starting block for the blockchain
+        genesis_block = {
+            'previous_hash': '',
+            'index': 0,
+            'transactions': [],
+            'proof' : 100,
+        }
+
+        # Initializing our (empty) blockchain list
+        blockchain = [genesis_block]
+        # Unhandled transactions
+        open_transactions = []
 
 load_data()
 
