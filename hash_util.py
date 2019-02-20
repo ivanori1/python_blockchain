@@ -10,4 +10,5 @@ def hash_block(block):
     Arguments:
         :block: The block that should be hashed.
     """
+    hashable_block = block.__dict__.copy()
     return hashlib.sha256(json.dumps(block, sort_keys=True).encode()).hexdigest()
