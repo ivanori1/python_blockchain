@@ -5,6 +5,7 @@ import json
 
 from hash_util import hash_string_256, hash_block
 from block import Block
+from transaction import Transaction
 # The reward we give to miners (for creating a new block)
 MINING_REWARD = 10
 blockchain = []
@@ -38,10 +39,7 @@ def load_data():
             blockchain = json.loads(file_content[0][:-1])
             updated_blockchain = []
             for block in blockchain:
-                converted_tx = [OrderedDict(
-                        [('sender', tx['sender']),
-                         ('recipient', tx['recipient']),
-                          ('amount', tx['amount'])])  for tx in block['transactions']]
+                converted_tx = [Transaction(tx['sender'], tx['recipient', tx['amount']])for tx in block['transactions']]
                 
                 updated_block = Block(block['index'], block['previous_hash'],
                                             converted_tx, block['proof'], block['timestamp'])
@@ -51,12 +49,9 @@ def load_data():
             open_transactions = json.loads(file_content[1])
             updated_transactions = []
             for tx in open_transactions:
-                updated_transaction = OrderedDict(
-                        [('sender', tx['sender']),
-                         ('recipient', tx['recipient']),
-                          ('amount', tx['amount'])])
-                updated_transactions.append(updated_transaction)
-            open_transactions = updated_transactions
+                updated_transactions = Transaction(tx['sender'], tx['recipient'], tx['amount'])
+                updated_transactions.append(updated_transactions)
+                open_transactions = updated_transactions
 
     except (IOError, IndexError):
         # Our starting block for the blockchain
